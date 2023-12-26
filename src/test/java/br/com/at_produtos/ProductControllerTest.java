@@ -4,17 +4,14 @@ import br.com.at_produtos.Controller.ProductController;
 import br.com.at_produtos.Exception.ResourceNotFoundException;
 import br.com.at_produtos.Model.Product;
 import br.com.at_produtos.Services.CurrencyService;
-import br.com.at_produtos.Services.ExchangeRateResponse;
 import br.com.at_produtos.Services.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,33 +32,78 @@ class ProductControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
     @Test
-    void testConvertToDollarWithCurrencyServiceException() {
-        when(productService.getProductById(anyInt())).thenReturn(new Product());
-        when(currencyService.realToDollar()).thenThrow(new RuntimeException("Test exception"));
-        assertThrows(RuntimeException.class, () -> productController.convertToDollar(1));
+    void testConvertedToDollar() {
+        Product product = new Product("Product1", 1, 10.0, List.of(5.0, 5.0, 5.0));
+        when(productService.getProductById(1)).thenReturn(product);
+        when(productService.convertToDollar(product)).thenReturn(product);
+        Product result = productController.convertedToDollar(1);
+        assertNotNull(result);
+        assertEquals(product, result);
+        verify(productService, times(1)).getProductById(1);
+        verify(productService, times(1)).convertToDollar(product);
     }
 
     @Test
+    void testConvertedToDollar_ProductNotFound() {
+        when(productService.getProductById(1)).thenReturn(null);
+        assertThrows(RuntimeException.class, () -> productController.convertedToDollar(1));
+        verify(productService, times(1)).getProductById(1);
+    }
+
+    @Test
+    void testGetPriceUSD() {
+        when(currencyService.getPriceUSD()).thenReturn(5.0);
+        double result = productController.getPriceUSD();
+        assertEquals(5.0, result);
+        verify(currencyService, times(1)).getPriceUSD();
+    }
+
+
+    @Test
     void testGetAllProducts() {
-        when(productService.getAllProducts(any(), any(), any())).thenReturn(Collections.emptyList());
-        assertNotNull(productController.getAllProducts(null, null, null));
+        List<Product> productList = new ArrayList<>();
+        productList.add(new Product("Product1", 1, 10.0, List.of(5.0)));
+        productList.add(new Product("Product2", 2, 20.0, List.of(7.0)));
+        when(productService.getAllProducts(null, null, null)).thenReturn(productList);
+        List<Product> result = productController.getAllProducts(null, null, null);
+        assertNotNull(result);
+        assertEquals(productList, result);
+        verify(productService, times(1)).getAllProducts(null, null, null);
     }
 
     @Test
     void testGetProductById() {
-        when(productService.getProductById(anyInt())).thenReturn(new Product());
-        assertNotNull(productController.getProductById(1));
+        Product product = new Product("Product1", 1, 10.0, List.of(5.0,5.0,5.0));
+        when(productService.getProductById(1)).thenReturn(product);
+        Product result = productController.getProductById(1);
+        assertNotNull(result);
+        assertEquals(product, result);
+        verify(productService, times(2)).getProductById(1);
+    }
+
+    @Test
+    void testGetProductById_ProductNotFound() {
+        when(productService.getProductById(1)).thenReturn(null);
+        assertThrows(Exception.class, () -> productController.getProductById(1));
+        verify(productService, times(1)).getProductById(1);
     }
 
     @Test
     void testAddProduct() {
-        assertDoesNotThrow(() -> productController.addProduct(new Product()));
+        Product product = new Product("Product1", 1, 10.0, List.of(5.0,5.0,5.0));
+        productController.addProduct(product);
+        verify(productService, times(1)).addProduct(product);
     }
 
     @Test
     void testAddProducts() {
-        assertDoesNotThrow(() -> productController.addProducts(Collections.singletonList(new Product())));
+        List<Product> productList = new ArrayList<>();
+        productList.add(new Product("Product1", 1, 10.0, List.of(5.0,5.0,5.0)));
+        productList.add(new Product("Product2", 2, 20.0, List.of(7.0,7.0,7.0)));
+        productController.addProducts(productList);
+        verify(productService, times(1)).addProducts(productList);
     }
 
     @Test
@@ -72,5 +114,11 @@ class ProductControllerTest {
     @Test
     void testDeleteProduct() {
         assertDoesNotThrow(() -> productController.deleteProduct(1));
+    }
+
+    @Test
+    void testDeleteAllProductsEndpoint() {
+        productController.deleteAllProducts();
+        verify(productService, times(1)).deleteAllProducts();
     }
 }

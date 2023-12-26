@@ -2,6 +2,11 @@ HELP.md
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+#Ignore everything in target folder
+/target/*
+
+#Don't ignore jar
+!/target/my-application-*-standalone.jar
 
 ### STS ###
 .apt_generated

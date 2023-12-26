@@ -1,13 +1,15 @@
 package br.com.at_produtos.Services;
 
+import br.com.at_produtos.Exception.ResourceNotFoundException;
 import br.com.at_produtos.Model.Product;
-import org.hibernate.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     Logger logger = LoggerFactory.getLogger(ProductService.class);
+    @Autowired
+    private CurrencyService currencyService;
 
     private static int nextId = 1;
     private List<Product> products = new ArrayList<>();
@@ -55,7 +59,26 @@ public class ProductService {
                 return product;
             }
         }
-        return null;
+        throw new ResourceNotFoundException("Produto não encontrado com o ID: " + id);
+    }
+
+    public Product convertToDollar(Product product) {
+        try {
+            var dollar = currencyService.getPriceUSD();
+            double priceInDollar = product.getPrice() / dollar;
+            BigDecimal priceInDollarDecimal = BigDecimal.valueOf(priceInDollar)
+                    .setScale(2, RoundingMode.HALF_EVEN);
+
+            Product productInDollar = new Product(
+                    product.getName(),
+                    product.getId(),
+                    priceInDollarDecimal.doubleValue(),
+                    product.getSize()
+            );
+            return productInDollar;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Erro ao converter para dólar" + e);
+        }
     }
 
     public void addProduct(Product product) {
@@ -69,8 +92,9 @@ public class ProductService {
             product.setId(nextId++);
             try{
             products.add(product);
-            logger.info("Adicionando um novo produto: {}", product.toString());} catch (Exception e) {
-                throw new RuntimeException(e);
+            logger.info("Adicionando um novo produto: {}", product.toString());
+            }catch (Exception e) {
+                throw new RuntimeException();
             }
         });
     }
@@ -100,6 +124,11 @@ public class ProductService {
                 break;
             }
         }
+    }
+
+    public void deleteAllProducts() {
+        products.clear();
+        logger.info("Todos os produtos foram removidos da lista.");
     }
 }
 

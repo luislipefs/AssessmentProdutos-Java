@@ -1,5 +1,4 @@
 package br.com.at_produtos;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,6 +7,7 @@ public class AssessmentProdutosApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AssessmentProdutosApplication.class, args);
+        {
+        }
     }
-
 }

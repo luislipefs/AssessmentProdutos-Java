@@ -6,6 +6,7 @@ import java.util.List;
 
 @AllArgsConstructor@NoArgsConstructor@Builder@Getter@Setter
 public class Product {
+
     private String name;
     private int id;
     private Double price;

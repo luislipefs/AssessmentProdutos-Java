@@ -1,8 +1,8 @@
-br\com\at_produtos\Services\ExchangeRateResponse$UsdBrl.class
+br\com\at_produtos\Model\CurrencyInfo.class
 br\com\at_produtos\Model\Product$ProductBuilder.class
 br\com\at_produtos\Model\Product.class
-br\com\at_produtos\Services\ExchangeRateResponse.class
 br\com\at_produtos\Controller\ProductController.class
+br\com\at_produtos\Model\CurrencyResponse.class
 br\com\at_produtos\Services\ProductService.class
 br\com\at_produtos\AssessmentProdutosApplication.class
 br\com\at_produtos\Exception\ResourceNotFoundException.class
