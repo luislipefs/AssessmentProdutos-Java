@@ -27,7 +27,7 @@ public class ProductController {
     private ProductService productService;
 
 
-    @GetMapping("dolar/{id}")
+    @GetMapping("{id}/dolar")
     public Product convertToDollar(@PathVariable int id) {
         try {
             // Obtém o produto por ID
@@ -62,6 +62,7 @@ public class ProductController {
         return currencyService.getHighValue();
     }
 
+
     @GetMapping("/dolar/{id}")
     public ResponseEntity<Product> realDollar(@PathVariable int id) {
         double exchangeRate = getExchangeRate();
@@ -74,7 +75,7 @@ public class ProductController {
 
         return ResponseEntity.ok(product);
     }
-    private double getExchangeRate() {
+    public double getExchangeRate() {
         String apiUrl = "https://api.invertexto.com/v1/currency/USD_BRL?token=5910|IRxCD4Fz9qGRtEBCPJjV4MytiASHLo1D";
         ResponseEntity<ExchangeRateResponse> responseEntity = new RestTemplate().getForEntity(apiUrl, ExchangeRateResponse.class);
 
